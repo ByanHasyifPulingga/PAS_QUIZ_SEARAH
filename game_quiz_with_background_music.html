@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Quiz Sejarah Komunis Indonesia</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            position: relative; /* Tambahkan posisi relatif */
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+        }
+        .question {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 10px 0;
+            transition: background 0.3s;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .timer {
+            font-size: 1.5em;
+            color: #ffcc00;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.3);
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            .quiz-container {
+                padding: 15px;
+            }
+            button {
+                font-size: 1em;
+            }
+            .timer {
+                font-size: 1.2em;
+            }
+        }
+        #start {
+            position: fixed; /* Posisi absolut */
+            bottom: 20px; /* Jarak dari bawah */
+            right: 20px; /* Jarak dari kanan */
+            width: auto; /* Biarkan lebar otomatis */
+        }
+
+        #reattempt, #backToHome {
+    margin: 10px 0; /* Menambahkan margin vertikal */
+    padding: 10px 20px; /* Menambahkan padding untuk tombol */
+    font-size: 16px; /* Ukuran font */
+    cursor: pointer; /* Kursor pointer saat hover */
+}
+
+#backToHome {
+    margin-top: 20px; /* Jarak tambahan di atas tombol Back to Home */
+}
+    </style>
+</head>
+<body>
+
+    <h1>Game Quiz Sejarah Komunis Indonesia</h1>
+    <div class="quiz-container">
+        <div class="timer" id="timer">Waktu: 15 detik</div>
+        <div id="quiz"></div>
+        <button id="next" style="display: none;">Berikutnya</button>
+        <button id="submit" style="display: none;">Kirim Jawaban</button>
+    </div>
+
+    <button id="start" style="display: block;">Mulai Backsound</button>
+
+    <audio id="correctSound" src="correct.mp3"></audio>
+    <audio id="incorrectSound" src="incorrect.mp3"></audio>
+    <audio id="clickSound" src="click.mp3"></audio>
+    <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
+
+    <script>
+        const quizData = [
+    {
+        question: "Apa nama partai politik yang didirikan pada tahun 1920?",
+        options: ["PKI", "PNI", "Masyumi", "Golkar"],
+        answer: "PKI"
+    },
+    {
+        question: "Siapa yang menjadi pemimpin PKI pada tahun 1948?",
+        options: ["D.N. Aidit", "Musso", "Tan Malaka", "Sukarno"],
+        answer: "Musso"
+    },
+    {
+        question: "Apa peristiwa yang terjadi pada tahun 1965?",
+        options: ["Revolusi", "Gerakan 30 September", "Perang Dunia", "Pemilu"],
+        answer: "Gerakan 30 September"
+    },
+    {
+        question: "Di mana lokasi pembantaian massal pada tahun 1965-1966?",
+        options: ["Jakarta", "Bali", "Sumatra", "Semarang"],
+        answer: "Sumatra"
+    },
+    {
+        question: "Siapa yang berperan penting dalam pembubaran PKI?",
+        options: ["Suharto", "Sukarno", "Jenderal Nasution", "Hatta"],
+        answer: "Suharto"
+    },
+    {
+        question: "Apa ideologi yang dianut oleh PKI?",
+        options: ["Nasionalisme", "Sosialisme", "Kapitalisme", "Fasisme"],
+        answer: "Sosialisme"
+    },
+    {
+        question: "Apa yang menjadi alasan utama konflik antara PKI dan TNI?",
+        options: ["Penguasaan tanah", "Ideologi", "Perebutan kekuasaan", "Agama"],
+        answer: "Perebutan kekuasaan"
+    },
+    {
+        question: "Apa nama tokoh yang menentang PKI dengan pendirian PNI?",
+        options: ["Sukarno", "Hatta", "Tan Malaka", "Sudirman"],
+        answer: "Sukarno"
+    },
+    {
+        question: "Apa yang terjadi setelah peristiwa G30S?",
+        options: ["Reformasi", "Orde Baru", "Demokrasi", "Monarki"],
+        answer: "Orde Baru"
+    },
+    {
+        question: "Apa yang menjadi dampak dari pembantaian tahun 1965-1966?",
+        options: ["Stabilitas politik", "Krisis ekonomi", "Perang saudara", "Pemulihan sosial"],
+        answer: "Stabilitas politik"
+    }
+];
+
+const quizContainer = document.getElementById('quiz');
+const timerElement = document.getElementById('timer');
+const nextButton = document.getElementById('next');
+const submitButton = document.getElementById('submit');
+const startButton = document.getElementById('start');
+const correctSound = document.getElementById('correctSound');
+const incorrectSound = document.getElementById('incorrectSound');
+const clickSound = document.getElementById('clickSound');
+const backgroundMusic = document.getElementById('backgroundMusic');
+let currentQuestionIndex = 0;
+let score = 0;
+let timer;
+
+startButton.addEventListener('click', () => {
+    backgroundMusic.play();
+    startButton.style.display = 'none'; // Sembunyikan tombol "Mulai"
+    loadQuestion(); // Muat pertanyaan pertama
+});
+
+function loadQuestion() {
+    clearInterval(timer);
+    const currentQuestion = quizData[currentQuestionIndex];
+    quizContainer.innerHTML = `
+        <div class="question">
+            <p>${currentQuestionIndex + 1}. ${currentQuestion.question}</p>
+            <ul class="options">
+                ${currentQuestion.options.map(option => `<li><input type="radio" name="question${currentQuestionIndex}" value="${option}"> ${option}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+
+    nextButton.style.display = (currentQuestionIndex < quizData.length - 1) ? 'block' : 'none';
+    submitButton.style.display = (currentQuestionIndex === quizData.length - 1) ? 'block' : 'none';
+
+    startTimer();
+}
+
+function startTimer() {
+    let timeLeft = 15;
+    timerElement.textContent = `Waktu: ${timeLeft} detik`;
+    timer = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = `Waktu: ${timeLeft} detik`;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            disableOptions();
+            nextButton.style.display = 'none';
+            submitButton.style.display = 'none';
+            showFeedback(false);
+        }
+    }, 1000);
+}
+
+function disableOptions() {
+    const options = document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`);
+    options.forEach(option => {
+        option.disabled = true;
+    });
+}
+
+nextButton.addEventListener('click', () => {
+    const selectedOption = document.querySelector(`input[name="question${currentQuestionIndex}"]:checked`);
+    if (selectedOption) {
+        clickSound.play();
+        if (selectedOption.value === quizData[currentQuestionIndex].answer) {
+            score++;
+            correctSound.play();
+            showFeedback(true);
+        } else {
+            incorrectSound.play();
+            showFeedback(false);
+        }
+    } else {
+        showFeedback(false);
+    }
+    currentQuestionIndex++;
+    loadQuestion();
+});
+
+submitButton.addEventListener('click', () => {
+    const selectedOption = document.querySelector(`input[name="question${currentQuestionIndex}"]:checked`);
+    if (selectedOption) {
+        clickSound.play();
+        if (selectedOption.value === quizData[currentQuestionIndex].answer) {
+            score++;
+            correctSound.play();
+            showFeedback(true);
+        } else {
+            incorrectSound.play();
+            showFeedback(false);
+        }
+    } else {
+        showFeedback(false);
+    }
+    showScore();
+});
+
+function showFeedback(isCorrect) {
+    const options = document.querySelectorAll(`.options li`);
+    options.forEach(option => {
+        option.classList.remove('correct', 'incorrect');
+        if (option.querySelector('input').value === quizData[currentQuestionIndex].answer) {
+            option.classList.add('correct');
+        } else if (option.querySelector('input').checked) {
+            option.classList.add('incorrect');
+        }
+    });
+}
+
+function showScore() {
+    quizContainer.innerHTML = `
+        <h2>Anda mendapatkan ${score} dari ${quizData.length} soal.</h2>
+        <button id="reattempt">Reattempt Quiz</button>
+        <button id="backToHome">Back to Home</button>
+    `;
+    timerElement.style.display = 'none';
+    nextButton.style.display = 'none';
+    submitButton.style.display = 'none';
+    backgroundMusic.pause(); // Hentikan backsound saat kuis selesai
+    backgroundMusic.currentTime = 0; // Reset posisi musik
+    
+    // Event listener untuk tombol reattempt
+    document.getElementById('reattempt').addEventListener('click', () => {
+        currentQuestionIndex = 0; // Reset indeks pertanyaan
+        score = 0; // Reset skor
+        loadQuestion(); // Muat ulang pertanyaan
+    });
+
+    // Event listener untuk tombol back to home
+    document.getElementById('backToHome').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+}
+
+// Panggil fungsi loadQuestion untuk memulai kuis
+loadQuestion();
+submitButton.style.display = 'none'; // Pastikan tombol kirim tidak terlihat pada awal // Pastikan tombol kirim tidak terlihat pada awal // Pastikan tombol kirim tidak terlihat pada awal // Pastikan tombol kirim tidak terlihat pada awal
+    </script>
+</body>
+</html>
